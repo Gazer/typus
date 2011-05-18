@@ -1,6 +1,7 @@
 class Admin::ResourcesController < Admin::BaseController
 
   include Typus::Controller::Actions
+  include Typus::Controller::ActsAs
   include Typus::Controller::Associations
   include Typus::Controller::Autocomplete
   include Typus::Controller::Filters
@@ -123,87 +124,6 @@ class Admin::ResourcesController < Admin::BaseController
     end
   end
 
-  ##
-  # Change item position:
-  #
-  #   params[:go] = 'move_to_top'
-  #
-  # Available positions are move_to_top, move_higher, move_lower, move_to_bottom.
-  #
-  # NOTE: Only works if `acts_as_list` is installed.
-  #
-  def position
-    @item.send(params[:go])
-    notice = Typus::I18n.t("%{model} successfully updated.", :model => @resource.model_name.human)
-    redirect_to :back, :notice => notice
-  end
-
-  ##
-  # Action to relate models which respond to:
-  #
-  #   - has_and_belongs_to_many
-  #   - has_many
-  #
-  # For example:
-  #
-  #   class Item < ActiveRecord::Base
-  #     has_many :line_items
-  #   end
-  #
-  #   class LineItem < ActiveRecord::Base
-  #     belongs_to :item
-  #   end
-  #
-  #   >> related_item = LineItem.find(params[:related][:id])
-  #   => ...
-  #   >> item = Item.find(params[:id])
-  #   => ...
-  #   >> item.line_items << related_item
-  #   => ...
-  #
-  def relate
-    resource_class = params[:related][:model].typus_constantize
-    association_name = params[:related][:association_name].tableize
-
-    if params[:related][:id].present? && (item = resource_class.find(params[:related][:id]))
-      @item.send(association_name) << item
-      notice = Typus::I18n.t("%{model} successfully updated.", :model => @resource.model_name.human)
-    else
-      notice = Typus::I18n.t("Please, select an option.")
-    end
-
-    redirect_to :back, :notice => notice
-  end
-
-  ##
-  # Action to unrelate models which respond to:
-  #
-  #   - has_and_belongs_to_many
-  #   - has_many
-  #   - has_one
-  #
-  def unrelate
-    item_class = params[:resource].typus_constantize
-    item = item_class.find(params[:resource_id])
-
-    case item_class.relationship_with(@resource)
-    when :has_one
-      association_name = @resource.model_name.underscore.to_sym
-      worked = item.send(association_name).delete
-    else
-      association_name = params[:association_name] ? params[:association_name].to_sym : @resource.model_name.tableize.to_sym
-      worked = item.send(association_name).delete(@item)
-    end
-
-    if worked
-      notice = Typus::I18n.t("%{model} successfully updated.", :model => item_class.model_name.human)
-    else
-      alert = item.error.full_messages
-    end
-
-    redirect_to :back, :notice => notice, :alert => alert
-  end
-
   private
 
   def get_model
@@ -273,7 +193,9 @@ class Admin::ResourcesController < Admin::BaseController
   #
   def create_with_back_to
     item_class = params[:resource].typus_constantize
-    options = { :controller => item_class.to_resource }
+    # For some reason we are forced to set the /admin prefix to the controller
+    # when working with namespaced stuff.
+    options = { :controller => "/admin/#{item_class.to_resource}" }
     assoc = item_class.relationship_with(@resource).to_s
     send("set_#{assoc}_association", item_class, options)
   end

@@ -24,6 +24,7 @@ module Typus
 
   module Controller
     autoload :Actions, "typus/controller/actions"
+    autoload :ActsAs, "typus/controller/acts_as"
     autoload :Associations, "typus/controller/associations"
     autoload :Autocomplete, "typus/controller/autocomplete"
     autoload :Filters, "typus/controller/filters"
@@ -38,7 +39,7 @@ module Typus
   end
 
   mattr_accessor :autocomplete
-  @@autocomplete = 100
+  @@autocomplete = nil
 
   mattr_accessor :admin_title
   @@admin_title = "Typus"
