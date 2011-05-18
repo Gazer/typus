@@ -47,42 +47,59 @@ module Typus
 
             virtual_fields = instance_methods.map { |i| i.to_s } - model_fields.keys.map { |i| i.to_s }
 
-            fields.extract_settings.map { |f| f.to_sym }.each do |field|
-              if reflect_on_association(field)
-                fields_with_type[field.to_s] = reflect_on_association(field).macro
-                next
-              end
+            fields = {'_default_' => fields} unless fields.is_a?(Hash)
 
-              if typus_field_options_for(:selectors).include?(field)
-                fields_with_type[field.to_s] = :selector
-                next
-              end
+            fields.each do |field_group, field_fields|
+              field_fields.extract_settings.map { |f| f.to_sym }.each do |field|
+                fields_with_type[field_group.to_s] ||= ActiveSupport::OrderedHash.new
 
-              dragonfly = respond_to?(:dragonfly_attachment_classes) && dragonfly_attachment_classes.map { |i| i.attribute }.include?(field)
-              paperclip = respond_to?(:attachment_definitions) && attachment_definitions.try(:has_key?, field)
+                if reflect_on_association(field)
+                  fields_with_type[field_group.to_s][field.to_s] = reflect_on_association(field).macro
+                  next
+                end
 
-              if dragonfly || paperclip
-                fields_with_type[field.to_s] = :file
-                next
-              end
+                if typus_field_options_for(:selectors).include?(field)
+                  fields_with_type[field_group.to_s][field.to_s] = :selector
+                  next
+                end
 
-              if virtual_fields.include?(field.to_s)
-                fields_with_type[field.to_s] = :virtual
-              end
+                dragonfly = respond_to?(:dragonfly_attachment_classes) && dragonfly_attachment_classes.map { |i| i.attribute }.include?(field)
+                paperclip = respond_to?(:attachment_definitions) && attachment_definitions.try(:has_key?, field)
 
-              fields_with_type[field.to_s] = case field.to_s
-                                             when 'parent', 'parent_id' then :tree
-                                             when /password/            then :password
-                                             when 'position'            then :position
-                                             when /\./                  then :transversal
-                                             else
-                                               if fields_with_type[field.to_s]
-                                                 fields_with_type[field.to_s]
+                if dragonfly || paperclip
+                  fields_with_type[field_group.to_s][field.to_s] = :file
+                  next
+                end
+
+                if virtual_fields.include?(field.to_s)
+                  fields_with_type[field_group.to_s][field.to_s] = :virtual
+                end
+
+
+                fields_with_type[field_group.to_s][field.to_s] = case field.to_s
+                                               when 'parent', 'parent_id' then :tree
+                                               when /password/            then :password
+                                               when 'position'            then :position
+                                               when /\./                  then :transversal
                                                else
-                                                 model_fields[field]
+                                                 if fields_with_type[field_group.to_s][field.to_s]
+                                                   fields_with_type[field_group.to_s][field.to_s]
+                                                 else
+                                                   model_fields[field]
+                                                 end
                                                end
-                                             end
 
+              end
+            end
+
+            # Only one group, this is the plain one line fields
+            if fields_with_type.keys.size == 1 && fields_with_type.keys.first == '_default_'
+              # Move all valus to the original hash, we dont need multi-level for this item
+              fields_with_type.first.last.each_pair do |key, value|
+                fields_with_type[key] = value
+              end
+
+              fields_with_type.delete('_default_')
             end
           end
         end
@@ -105,3 +122,4 @@ module Typus
     end
   end
 end
+

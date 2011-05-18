@@ -46,7 +46,9 @@ Post:
     relationship: title, created_at
     csv: title, status
     xml: title, status
-    show: title, body, status, published, created_at
+    show:
+      info: title, body
+      status: status, published, created_at
     options:
       selectors: status
       read_only: permalink
@@ -64,3 +66,4 @@ Post:
   order_by: title, -created_at
   export: csv, xml
   application: CRUD Extended
+

@@ -148,6 +148,25 @@ class ClassMethodsTest < ActiveSupport::TestCase
       assert_equal expected.map { |i| i.last }, Comment.typus_fields_for(:list).values
     end
 
+    context "show" do
+      should "accept multiple group of values" do
+        status = [["status", :selector],
+                  ["published", :boolean],
+                  ["created_at", :datetime]]
+        data     = [["title", :string],
+                    ["body", :text]]
+        expected = [["info", data],
+                    ["status", status]]
+
+        assert_equal expected.map { |i| i.first }, Post.typus_fields_for(:show).keys
+        assert_equal status.map{|i| i.first}, Post.typus_fields_for(:show)['status'].keys
+        assert_equal status.map{|i| i.last}, Post.typus_fields_for(:show)['status'].values
+
+        assert_equal data.map{|i| i.first}, Post.typus_fields_for(:show)['info'].keys
+        assert_equal data.map{|i| i.last}, Post.typus_fields_for(:show)['info'].values
+      end
+    end
+
   end
 
   context "typus_filters" do
@@ -388,3 +407,4 @@ class ClassMethodsTest < ActiveSupport::TestCase
   end
 
 end
+

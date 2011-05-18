@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  $('#tabs').tabs();
 
   $("#quicksearch").searchField();
 
@@ -27,3 +28,4 @@ function setConfirmUnload(on) {
 function unloadMessage() {
   return "You have entered new data on this page. If you navigate away from this page without first saving your data, the changes will be lost.";
 }
+

@@ -106,6 +106,12 @@ a:hover { color: #333; text-decoration: underline!important; }
 #content ol { margin: 1em 2em; }
 #content ul { margin: 0 1.5em; }
 #content li { list-style: square; line-height: 20px; }
+/* Not for tabs */
+#tabs ol { margin: 0; }
+#tabs ul { margin: 0; }
+#tabs li { list-style: none; line-height: auto; }
+/* Fix strange error with tabs bar height and sidebar */
+#tabs { float: left; width: 100%; }
 
 #content pre {
   background: #000;
@@ -359,3 +365,4 @@ ul.predefined_filters li {
 }
 
 /* @end */
+

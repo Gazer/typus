@@ -13,11 +13,41 @@
 <%= display_flash_message %>
 <%= render 'show' %>
 
-<dl>
-  <% build_display(@item, fields).each do |attribute, type| %>
-    <dt><%= attribute %></dt>
-    <dd><%= type %></dd>
-  <% end %>
-</dl>
+<%# TODO : Not very clean, but is a start point :) %>
+<% if fields.first.last.is_a? ActiveSupport::OrderedHash %>
+  <div id="tabs">
+    <ul>
+    <% index = 0 %>
+    <% fields.keys.reverse.each do |group_title| %>
+      <% index += 1 %>
+      <li><%= link_to t("admin.tabs.#{@item.class.name.downcase}.#{group_title}"), "#tab-#{index}" %></li>
+    <% end %>
+    </ul>
+
+    <% index = 0 %>
+    <% fields.keys.reverse.each do |group_title| %>
+      <%
+        index += 1
+        group_fields = fields[group_title]
+      %>
+      <div id="tab-<%= index %>">
+        <dl>
+        <% build_display(@item, group_fields).each do |attribute, type| %>
+          <dt><%= attribute %></dt>
+          <dd><%= type %></dd>
+        <% end %>
+        </dl>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <dl>
+    <% build_display(@item, fields).each do |attribute, type| %>
+      <dt><%= attribute %></dt>
+      <dd><%= type %></dd>
+    <% end %>
+  </dl>
+<% end %>
 
 <%= typus_relationships %>
+
