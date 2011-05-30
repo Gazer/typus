@@ -18,14 +18,14 @@
   <div id="tabs">
     <ul>
     <% index = 0 %>
-    <% fields.keys.reverse.each do |group_title| %>
+    <% fields.keys.sort.each do |group_title| %>
       <% index += 1 %>
       <li><%= link_to t("admin.tabs.#{@item.class.name.downcase}.#{group_title}"), "#tab-#{index}" %></li>
     <% end %>
     </ul>
 
     <% index = 0 %>
-    <% fields.keys.reverse.each do |group_title| %>
+    <% fields.keys.sort.each do |group_title| %>
       <%
         index += 1
         group_fields = fields[group_title]
