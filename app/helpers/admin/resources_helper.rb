@@ -35,5 +35,9 @@ module Admin
       end
     end
 
+    def use_tabs?
+      fields.first.last.is_a? ActiveSupport::OrderedHash
+    end
+
   end
 end
