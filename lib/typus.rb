@@ -137,7 +137,7 @@ module Typus
 
     # Lists modules of an application.
     def application(name)
-      Typus::Configuration.config.map { |i| i.first if i.last["application"] == name }.compact.uniq.sort
+      Typus::Configuration.config.map { |i| i.first if i.last["application"] == name }.compact.uniq
     end
 
     # Lists models from the configuration file.
@@ -175,7 +175,8 @@ module Typus
         "Français" => "fr",
         "Magyar" => "hu",
         "Italiano" => "It",
-        "Portuguese" => "pt-BR",
+        "Portuguese" => "pt-PT",
+        "Brazilian Portuguese" => "pt-BR",
         "Russian" => "ru",
         "中文" => "zh-CN" }
     end
