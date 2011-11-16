@@ -142,7 +142,7 @@ class Admin::ResourcesController < Admin::BaseController
   helper_method :set_context
 
   def get_object
-    @item = @resource.find(params[:id])
+    @item = decorate(@resource.find(params[:id]))
   end
 
   def get_objects

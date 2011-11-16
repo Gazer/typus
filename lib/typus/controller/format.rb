@@ -14,8 +14,22 @@ module Typus
       def generate_html
         items_per_page = @resource.typus_options_for(:per_page)
         @items = @resource.paginate(:per_page => items_per_page, :page => params[:page])
+        decorate(@items)
       end
 
+      def decorate(items)
+        klass = params[:controller].remove_prefix.classify
+        # Try to load a decorator class. If not exists, load the real user.
+        # Use this with Drapper to cleanup your model of view stuff
+        # https://github.com/jcasimir/draper
+        begin
+          decorator = "#{klass}Decorator".constantize
+        rescue NameError
+          return items
+        end
+
+        @items = decorator.decorate(items)
+      end
       #--
       # TODO: Find in batches only works properly if it's used on models, not
       #       controllers, so in this action does nothing. We should find a way
@@ -32,6 +46,7 @@ module Typus
           csv << fields.keys
           @resource.find_in_batches(options) do |records|
             records.each do |record|
+              record = decorate(record)
               csv << fields.map do |key, value|
                        case value
                        when :transversal
