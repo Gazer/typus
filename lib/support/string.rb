@@ -9,7 +9,16 @@ class String
   end
 
   def extract_class
-    remove_prefix.classify.typus_constantize
+    klass = remove_prefix.classify
+
+    # Try to load a decorator class. If not exists, load the real user.
+    # Use this with Drapper to cleanup your model of view stuff
+    # https://github.com/jcasimir/draper
+    begin
+      "#{klass}Decorator".constantize
+    rescue NameError
+      klass.typus_constantize
+    end
   end
 
   def typus_constantize

@@ -4,7 +4,7 @@ module Admin
     def build_display(item, fields)
       fields.map do |attribute, type|
         value = if (type == :boolean) || (data = item.send(attribute))
-                  send("display_#{type}", item, attribute)
+                  send("display_#{type || 'string'}", item, attribute)
                 else
                   "&mdash;".html_safe
                 end
