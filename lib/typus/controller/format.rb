@@ -43,7 +43,7 @@ module Typus
         options = { :conditions => @conditions, :batch_size => 1000 }
 
         ::FasterCSV.open(filename, 'w', {:col_sep => ';', :row_sep => "\r\n"}) do |csv|
-          csv << fields.keys
+          csv << fields.keys.map {|key| @resource.human_attribute_name(key) }
           @resource.find_in_batches(options) do |records|
             records.each do |record|
               record = decorate(record)
