@@ -3,6 +3,12 @@ class ActiveRecord::Base
   def self.relationship_with(model)
     association = reflect_on_association(model.table_name.to_sym) ||
                   reflect_on_association(model.model_name.underscore.to_sym)
+
+    # if the relationship uses a custom name, search for class_name option
+    reflect_on_all_associations.each do |assoc|
+      association = assoc if assoc.options[:class_name] == "#{model}"
+    end unless association
+
     association.macro
   end
 
