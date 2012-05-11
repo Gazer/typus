@@ -8,11 +8,11 @@
       </tr>
     </thead>
 
-    <% admin_user.application(app).each do |model| %>
+    <% apps = admin_user.application(app).collect {|m| [m.typus_constantize,m.typus_constantize.model_name.human.pluralize]}
+       apps = apps.sort {|a,b| a[1]<=>b[1]}
+       apps.each do |klass,klass_human_name| %>
 
       <%
-        klass = model.typus_constantize
-        klass_human_name = klass.model_name.human.pluralize
         admin_items_path = { :controller => "/admin/#{klass.to_resource}" }
       %>
 
